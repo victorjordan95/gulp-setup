@@ -12,6 +12,8 @@ var cache = require('gulp-cache');
 var del = require('del');
 var runSequence = require('run-sequence');
 var clean = require('gulp-clean');
+var htmlmin = require('gulp-htmlmin');
+var removeHtmlComments = require('gulp-remove-html-comments');
 
 // Basic Gulp task syntax
 gulp.task('hello', function() {
@@ -85,6 +87,21 @@ gulp.task('fonts', function() {
     .pipe(gulp.dest('dist/fonts'))
 })
 
+//minify HTML
+gulp.task('minify', ['comments'], function() {
+  return gulp.src('dist/**/*.html')
+    .pipe(htmlmin({
+		collapseWhitespace: true
+	}))
+    .pipe(gulp.dest('dist'));
+});
+
+//Remove comments 
+gulp.task('comments', function () {
+  return gulp.src('dist/**/*.html')
+    .pipe(removeHtmlComments())
+    .pipe(gulp.dest('dist'));
+});
 
 // Build Sequences
 // ---------------
@@ -99,7 +116,9 @@ gulp.task('build', function(callback) {
   runSequence(
 	'copy',
     'sass',
-    ['useref', 'images', 'fonts'],
-    callback
+    ['fonts','useref'],
+	'images',	
+	callback
   )
 })
+
